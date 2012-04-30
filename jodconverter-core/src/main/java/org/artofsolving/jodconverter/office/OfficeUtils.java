@@ -113,6 +113,8 @@ public class OfficeUtils {
                 file = new File(officeHome, "MacOS/soffice");
             }
             return file;
+        } else if (PlatformUtils.isWindows()) {
+            return new File(officeHome, "program/soffice.exe");
         } else {
             return new File(officeHome, "program/soffice.bin");
         }
