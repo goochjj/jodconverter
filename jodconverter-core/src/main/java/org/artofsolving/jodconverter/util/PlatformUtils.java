@@ -39,7 +39,7 @@ public class PlatformUtils {
     private static final String LINUX = "linux";
 
     private static final String[] LINUX_OO_HOME_PATHS = {
-            "/usr/lib/libreoffice", "/usr/lib/openoffice",
+            "/usr/lib/libreoffice", "/opt/libreoffice4.0", "/usr/lib/openoffice",
             "/usr/lib/openoffice.org", "/usr/lib/openoffice.org3",
             "/opt/openoffice.org3", "/opt/libreoffice", "/usr/lib/ooo" };
 
@@ -48,6 +48,12 @@ public class PlatformUtils {
             "/Applications/OpenOffice.org.app/Contents" };
 
     private static final String[] WINDOWS_OO_HOME_PATHS = {
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.5",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.4",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.3",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.2",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.1",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.0",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.9",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.8",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.7",
@@ -55,6 +61,18 @@ public class PlatformUtils {
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.5",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.4",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4.5",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4.4",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4.3",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4.2",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4.1",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4.0",
             System.getenv("ProgramFiles(x86)") + File.separator
                     + "LibreOffice 3.9",
             System.getenv("ProgramFiles(x86)") + File.separator
