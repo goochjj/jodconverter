@@ -54,6 +54,7 @@ public class PlatformUtils {
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.2",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.1",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.0",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 4",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.9",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.8",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.7",
@@ -73,6 +74,8 @@ public class PlatformUtils {
                     + "LibreOffice 4.1",
             System.getenv("ProgramFiles(x86)") + File.separator
                     + "LibreOffice 4.0",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 4",
             System.getenv("ProgramFiles(x86)") + File.separator
                     + "LibreOffice 3.9",
             System.getenv("ProgramFiles(x86)") + File.separator
