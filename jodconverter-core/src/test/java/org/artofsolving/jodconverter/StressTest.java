@@ -19,6 +19,7 @@
 package org.artofsolving.jodconverter;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import org.artofsolving.jodconverter.document.DocumentFormat;
 import org.artofsolving.jodconverter.document.DocumentFormatRegistry;
@@ -26,27 +27,29 @@ import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
 import org.artofsolving.jodconverter.office.OfficeManager;
 import org.testng.annotations.Test;
 
-@Test(groups="functional")
+@Test(groups = "functional")
 public class StressTest {
+    protected final Logger logger = Logger.getLogger(getClass().getName());
 
-	private static final int MAX_CONVERSIONS = 1024;
-	private static final int MAX_RUNNING_THREADS = 128;
-	private static final int MAX_TASKS_PER_PROCESS = 10;
+    private static final int MAX_CONVERSIONS = 1024;
 
-	private static final String INPUT_EXTENSION = "rtf";
-	private static final String OUTPUT_EXTENSION = "pdf";
+    private static final int MAX_RUNNING_THREADS = 128;
 
-    public void runParallelConversions() throws Exception
-    {
-	// Configure the office manager in a way that maximizes possible race conditions.
-	DefaultOfficeManagerConfiguration configuration = new DefaultOfficeManagerConfiguration();
-	configuration.setPortNumbers(2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009);
-	configuration.setMaxTasksPerProcess(MAX_TASKS_PER_PROCESS);
+    private static final int MAX_TASKS_PER_PROCESS = 10;
+
+    private static final String INPUT_EXTENSION = "rtf";
+
+    private static final String OUTPUT_EXTENSION = "pdf";
+
+    public void runParallelConversions() throws Exception {
+        // Configure the office manager in a way that maximizes possible race conditions.
+        DefaultOfficeManagerConfiguration configuration = new DefaultOfficeManagerConfiguration();
+        configuration.setPortNumbers(2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009);
+        configuration.setMaxTasksPerProcess(MAX_TASKS_PER_PROCESS);
 
         OfficeManager officeManager = configuration.buildOfficeManager();
         OfficeDocumentConverter converter = new OfficeDocumentConverter(officeManager);
         DocumentFormatRegistry formatRegistry = converter.getFormatRegistry();
-
 
         officeManager.start();
         try {
@@ -57,7 +60,7 @@ public class StressTest {
             boolean first = true;
             int t = 0;
 
-		    for (int i = 0; i < MAX_CONVERSIONS; i++) {
+            for (int i = 0; i < MAX_CONVERSIONS; i++) {
                 DocumentFormat inputFormat = formatRegistry.getFormatByExtension(INPUT_EXTENSION);
                 DocumentFormat outputFormat = formatRegistry.getFormatByExtension(OUTPUT_EXTENSION);
 
@@ -66,62 +69,56 @@ public class StressTest {
 
                 // Converts the first document without threads to ensure everything is OK.
                 if (first) {
-			converter.convert(inputFile, outputFile, outputFormat);
-			first = false;
+                    converter.convert(inputFile, outputFile, outputFormat);
+                    first = false;
                 }
 
-                System.out.println("Creating thread " + t + "...");
+                logger.fine("Creating thread " + t + "...");
                 Runner r = new Runner(inputFile, outputFile, inputFormat, outputFormat, converter);
                 threads[t] = new Thread(r);
                 threads[t++].start();
 
                 if (t == MAX_RUNNING_THREADS) {
-			for (int j = 0; j < t; j++) {
-				threads[j].join();
-			}
-			t = 0;
+                    for (int j = 0; j < t; j++) {
+                        threads[j].join();
+                    }
+                    t = 0;
                 }
-		    }
+            }
 
-		    // Wait for remaining threads.
-		    for (int j = 0; j < t; j++) {
-			threads[j].join();
-		    }
+            // Wait for remaining threads.
+            for (int j = 0; j < t; j++) {
+                threads[j].join();
+            }
 
-
-        }
-        finally {
+        } finally {
             officeManager.stop();
         }
     }
 
     public class Runner implements Runnable {
+        public Runner(File inputFile, File outputFile, DocumentFormat inputFormat, DocumentFormat outputFormat,
+                OfficeDocumentConverter converter) {
+            super();
+            this.inputFile = inputFile;
+            this.outputFile = outputFile;
+            this.inputFormat = inputFormat;
+            this.outputFormat = outputFormat;
+            this.converter = converter;
+        }
 
-	public Runner(File inputFile, File outputFile, DocumentFormat inputFormat, DocumentFormat outputFormat,
-			OfficeDocumentConverter converter) {
-		super();
-		this.inputFile = inputFile;
-		this.outputFile = outputFile;
-		this.inputFormat = inputFormat;
-		this.outputFormat = outputFormat;
-		this.converter = converter;
-	}
+        File inputFile, outputFile;
 
-	File inputFile, outputFile;
+        DocumentFormat inputFormat, outputFormat;
 
-	DocumentFormat inputFormat, outputFormat;
+        OfficeDocumentConverter converter;
 
-	OfficeDocumentConverter converter;
-
-	public void run() {
-		try {
-			System.out.printf("-- converting %s to %s... ", inputFormat.getExtension(), outputFormat.getExtension());
-			converter.convert(inputFile, outputFile, outputFormat);
-			System.out.printf("done.\n");
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+        @Override
+        public void run() {
+            logger.fine(String.format("-- converting %s to %s... ", inputFormat.getExtension(),
+                    outputFormat.getExtension()));
+            converter.convert(inputFile, outputFile, outputFormat);
+            logger.fine("done.");
+        }
     }
 }
