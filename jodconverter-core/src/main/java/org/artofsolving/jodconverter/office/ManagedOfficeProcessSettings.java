@@ -44,6 +44,8 @@ class ManagedOfficeProcessSettings {
 
     protected boolean useGnuStyleLongOptions = false;
 
+    private boolean killExistingProcess= true;
+
     public ManagedOfficeProcessSettings(UnoUrl unoUrl) {
         this.unoUrl = unoUrl;
     }
@@ -100,4 +102,11 @@ class ManagedOfficeProcessSettings {
         this.useGnuStyleLongOptions = useGnuStyleLongOptions;
     }
 
+    public void setKillExistingProcess(boolean killExistingProcess) {
+        this.killExistingProcess = killExistingProcess;
+    }
+
+    public boolean isKillExistingProcess() {
+        return killExistingProcess;
+    }
 }

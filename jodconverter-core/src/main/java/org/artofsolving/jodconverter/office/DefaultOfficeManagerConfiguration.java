@@ -21,11 +21,7 @@ package org.artofsolving.jodconverter.office;
 
 import java.io.File;
 
-import org.artofsolving.jodconverter.process.MacProcessManager;
-import org.artofsolving.jodconverter.process.ProcessManager;
-import org.artofsolving.jodconverter.process.PureJavaProcessManager;
-import org.artofsolving.jodconverter.process.UnixProcessManager;
-import org.artofsolving.jodconverter.process.WindowsProcessManager;
+import org.artofsolving.jodconverter.process.*;
 import org.artofsolving.jodconverter.util.PlatformUtils;
 
 public class DefaultOfficeManagerConfiguration {
@@ -50,6 +46,8 @@ public class DefaultOfficeManagerConfiguration {
 
     private ProcessManager processManager = null; // lazily initialised
 
+    private boolean killExistingProcess= true; //
+
     public DefaultOfficeManagerConfiguration setOfficeHome(String officeHome)
             throws NullPointerException, IllegalArgumentException {
         checkArgumentNotNull("officeHome", officeHome);
@@ -71,6 +69,11 @@ public class DefaultOfficeManagerConfiguration {
         checkArgumentNotNull("connectionProtocol", connectionProtocol);
         this.connectionProtocol = connectionProtocol;
         return this;
+    }
+
+    public DefaultOfficeManagerConfiguration setKillExistingProcess(boolean killExistingProcess) {
+      this.killExistingProcess = killExistingProcess;
+      return this;
     }
 
     public DefaultOfficeManagerConfiguration setPortNumber(int portNumber) {
@@ -172,7 +175,7 @@ public class DefaultOfficeManagerConfiguration {
         }
         return new ProcessPoolOfficeManager(officeHome, unoUrls,
                 templateProfileDir, taskQueueTimeout, taskExecutionTimeout,
-                maxTasksPerProcess, processManager, useGnuStyleLongOptions);
+                maxTasksPerProcess, processManager, useGnuStyleLongOptions, killExistingProcess);
     }
 
     private ProcessManager findBestProcessManager() {
