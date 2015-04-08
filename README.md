@@ -20,3 +20,5 @@ info.
 
 [![Build Status](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=jodconverter-3.0-NX)](https://qa.nuxeo.org/jenkins/job/jodconverter-3.0-NX/)
 
+[![Windows build](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=jodconverter-3.0-NX-windows)](https://qa.nuxeo.org/jenkins/job/jodconverter-3.0-NX-windows/)
+
