@@ -48,6 +48,13 @@ public class PlatformUtils {
             "/Applications/OpenOffice.org.app/Contents" };
 
     private static final String[] WINDOWS_OO_HOME_PATHS = {
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5.5",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5.4",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5.3",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5.2",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5.1",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5.0",
+            System.getenv("ProgramFiles") + File.separator + "LibreOffice 5",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.5",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.4",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 4.3",
@@ -62,6 +69,20 @@ public class PlatformUtils {
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.5",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3.4",
             System.getenv("ProgramFiles") + File.separator + "LibreOffice 3",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5.5",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5.4",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5.3",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5.2",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5.1",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5.0",
+            System.getenv("ProgramFiles(x86)") + File.separator
+                    + "LibreOffice 5",
             System.getenv("ProgramFiles(x86)") + File.separator
                     + "LibreOffice 4.5",
             System.getenv("ProgramFiles(x86)") + File.separator
@@ -95,12 +116,15 @@ public class PlatformUtils {
                     + "OpenOffice.org 3", };
 
     private static final String[] LINUX_OO_PROFILE_PATHS = {
+            System.getProperty("user.home") + File.separator + ".libreoffice/5",
             System.getProperty("user.home") + File.separator + ".libreoffice/4",
             System.getProperty("user.home") + File.separator + ".libreoffice/3",
             System.getProperty("user.home") + File.separator
                     + ".openoffice.org/3" };
 
     private static final String[] MAC_OO_PROFILE_PATHS = {
+            System.getProperty("user.home") + File.separator
+                    + "Library/Application Support/LibreOffice.org/5",
             System.getProperty("user.home") + File.separator
                     + "Library/Application Support/LibreOffice.org/4",
             System.getProperty("user.home") + File.separator
@@ -109,6 +133,7 @@ public class PlatformUtils {
                     + "Library/Application Support/OpenOffice.org/3" };
 
     private static final String[] WINDOWS_OO_PROFILE_PATHS = {
+            System.getenv("APPDATA") + File.separator + "LibreOffice.org/5",
             System.getenv("APPDATA") + File.separator + "LibreOffice.org/4",
             System.getenv("APPDATA") + File.separator + "LibreOffice.org/3",
             System.getenv("APPDATA") + File.separator + "OpenOffice.org/3" };
