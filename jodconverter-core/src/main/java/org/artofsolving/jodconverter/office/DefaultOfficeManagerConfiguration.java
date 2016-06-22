@@ -1,14 +1,20 @@
 //
 // JODConverter - Java OpenDocument Converter
-// Copyright 2004-2012 Mirko Nasato and contributors
+// Copyright 2004-2011 Mirko Nasato and contributors
 //
-// JODConverter is Open Source software, you can redistribute it and/or
-// modify it under either (at your option) of the following licenses
+// JODConverter is free software: you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public License
+// as published by the Free Software Foundation, either version 3 of
+// the License, or (at your option) any later version.
 //
-// 1. The GNU Lesser General Public License v3 (or later)
-//    -> http://www.gnu.org/licenses/lgpl-3.0.txt
-// 2. The Apache License, Version 2.0
-//    -> http://www.apache.org/licenses/LICENSE-2.0.txt
+// JODConverter is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General
+// Public License along with JODConverter.  If not, see
+// <http://www.gnu.org/licenses/>.
 //
 package org.artofsolving.jodconverter.office;
 
@@ -18,6 +24,7 @@ import org.artofsolving.jodconverter.process.ProcessManager;
 import org.artofsolving.jodconverter.process.PureJavaProcessManager;
 import org.artofsolving.jodconverter.process.LinuxProcessManager;
 import org.artofsolving.jodconverter.process.SigarProcessManager;
+import org.artofsolving.jodconverter.process.WindowsProcessManager;
 import org.artofsolving.jodconverter.util.PlatformUtils;
 
 public class DefaultOfficeManagerConfiguration {
@@ -82,9 +89,9 @@ public class DefaultOfficeManagerConfiguration {
     }
 
     public DefaultOfficeManagerConfiguration setRunAsArgs(String... runAsArgs) {
-		this.runAsArgs = runAsArgs;
-		return this;
-	}
+        this.runAsArgs = runAsArgs;
+        return this;
+    }
 
     public DefaultOfficeManagerConfiguration setTemplateProfileDir(File templateProfileDir) throws IllegalArgumentException {
         if (templateProfileDir != null) {
@@ -98,7 +105,7 @@ public class DefaultOfficeManagerConfiguration {
      * Sets the directory where temporary office profiles will be created.
      * <p>
      * Defaults to the system temporary directory as specified by the <code>java.io.tmpdir</code> system property.
-     * 
+     *
      * @param workDir
      * @return
      */
@@ -129,7 +136,7 @@ public class DefaultOfficeManagerConfiguration {
      * The default is to use {@link SigarProcessManager} if sigar.jar is
      * available in the classpath, otherwise {@link LinuxProcessManager}
      * on Linux and {@link PureJavaProcessManager} on other platforms.
-     * 
+     *
      * @param processManager
      * @return
      * @throws NullPointerException
@@ -143,7 +150,7 @@ public class DefaultOfficeManagerConfiguration {
     /**
      * Retry timeout set in milliseconds. Used for retrying office process calls.
      * If not set, it defaults to 2 minutes
-     * 
+     *
      * @param retryTimeout in milliseconds
      * @return
      */
@@ -170,7 +177,7 @@ public class DefaultOfficeManagerConfiguration {
         if (processManager == null) {
             processManager = findBestProcessManager();
         }
-        
+
         int numInstances = connectionProtocol == OfficeConnectionProtocol.PIPE ? pipeNames.length : portNumbers.length;
         UnoUrl[] unoUrls = new UnoUrl[numInstances];
         for (int i = 0; i < numInstances; i++) {
@@ -183,11 +190,13 @@ public class DefaultOfficeManagerConfiguration {
         if (isSigarAvailable()) {
             return new SigarProcessManager();
         } else if (PlatformUtils.isLinux()) {
-        	LinuxProcessManager processManager = new LinuxProcessManager();
-        	if (runAsArgs != null) {
-        		processManager.setRunAsArgs(runAsArgs);
-        	}
-        	return processManager;
+            LinuxProcessManager processManager = new LinuxProcessManager();
+            if (runAsArgs != null) {
+                processManager.setRunAsArgs(runAsArgs);
+            }
+            return processManager;
+        } else if (PlatformUtils.isWindows() && WindowsProcessManager.isSupported()) {
+            return new WindowsProcessManager();
         } else {
             // NOTE: UnixProcessManager can't be trusted to work on Solaris
             // because of the 80-char limit on ps output there  

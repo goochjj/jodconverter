@@ -1,14 +1,20 @@
 //
 // JODConverter - Java OpenDocument Converter
-// Copyright 2004-2012 Mirko Nasato and contributors
+// Copyright 2004-2011 Mirko Nasato and contributors
 //
-// JODConverter is Open Source software, you can redistribute it and/or
-// modify it under either (at your option) of the following licenses
+// JODConverter is free software: you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public License
+// as published by the Free Software Foundation, either version 3 of
+// the License, or (at your option) any later version.
 //
-// 1. The GNU Lesser General Public License v3 (or later)
-//    -> http://www.gnu.org/licenses/lgpl-3.0.txt
-// 2. The Apache License, Version 2.0
-//    -> http://www.apache.org/licenses/LICENSE-2.0.txt
+// JODConverter is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General
+// Public License along with JODConverter.  If not, see
+// <http://www.gnu.org/licenses/>.
 //
 package org.artofsolving.jodconverter;
 
@@ -29,7 +35,9 @@ class OfficeDocumentUtils {
 
     public static DocumentFamily getDocumentFamily(XComponent document) throws OfficeException {
         XServiceInfo serviceInfo = cast(XServiceInfo.class, document);
-        if (serviceInfo.supportsService("com.sun.star.text.GenericTextDocument")) {
+        if (serviceInfo.supportsService("com.sun.star.text.WebDocument")) {
+            return DocumentFamily.WEB;
+        } else if (serviceInfo.supportsService("com.sun.star.text.GenericTextDocument")) {
             // NOTE: a GenericTextDocument is either a TextDocument, a WebDocument, or a GlobalDocument
             // but this further distinction doesn't seem to matter for conversions
             return DocumentFamily.TEXT;

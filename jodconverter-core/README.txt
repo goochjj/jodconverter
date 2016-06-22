@@ -8,6 +8,17 @@ using LibreOffice or Apache OpenOffice.
 
 See http://jodconverter.googlecode.com for the latest documentation.
 
+JAHIA FORK
+==========
+This fork contains the following fixes :
+- Allow to connect to an external office process on another host
+- Solve the problem with connection to LibreOffice 3.5 on Windows. The "basis-link" file does not exist any more in
+version 3.5. It is replaced with "ure-link". Correctly detect the URE path location on Windows in case of LibreOffice 3.5.
+- Address JODConverter issue (http://code.google.com/p/jodconverter/issues/detail?id=102 )
+with HTML to PDF/ODT/Text conversion: use proper export filters in case of the HTML input document.
+- Added support for killing existing office processes on Windows ( QA-3698 , DOCSPACE-300 ).
+- Jahia 5 patch force restart of Open/Libre Office if thread can't take anymore tasks
+
 Licensing
 ---------
 
