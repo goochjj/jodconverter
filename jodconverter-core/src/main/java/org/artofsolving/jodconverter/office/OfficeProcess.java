@@ -16,6 +16,13 @@
 // Public License along with JODConverter.  If not, see
 // <http://www.gnu.org/licenses/>.
 //
+// Included changes from OfficeProcess.patch from
+// http://code.google.com/p/jodconverter/issues/detail?id=103
+//
+// 2012 - Alfresco Software, Ltd.
+// Alfresco Software has modified source of this file
+// The details of changes as svn diff can be found in svn at location root/enterpriseprojects/3rd-party/src
+
 package org.artofsolving.jodconverter.office;
 
 import static org.artofsolving.jodconverter.process.ProcessManager.PID_NOT_FOUND;
@@ -42,6 +49,8 @@ class OfficeProcess {
     private final File templateProfileDir;
     private final File instanceProfileDir;
     private final ProcessManager processManager;
+
+    private int threadWait = 50, maxIteration=10;
 
     private Process process;
     private long pid = PID_UNKNOWN;
@@ -77,22 +86,93 @@ class OfficeProcess {
             command.addAll(Arrays.asList(runAsArgs));
         }
         command.add(executable.getAbsolutePath());
-        command.add("-accept=" + unoUrl.getAcceptString() + ";urp;");
-        command.add("-env:UserInstallation=" + OfficeUtils.toUrl(instanceProfileDir));
-        command.add("-headless");
-        command.add("-nocrashreport");
-        command.add("-nodefault");
-        command.add("-nofirststartwizard");
-        command.add("-nolockcheck");
-        command.add("-nologo");
-        command.add("-norestore");
+        boolean libreOffice3Dot5 = isLibreOffice3Dot5();
+        if (libreOffice3Dot5)
+        {
+            command.add("--accept=" + unoUrl.getAcceptString() + ";urp;");
+            if (PlatformUtils.isMac() && !isLibreOffice3Dot6())
+            {
+                command.add("--env:UserInstallation=" + OfficeUtils.toUrl(instanceProfileDir));
+            }
+            else
+            {
+                command.add("-env:UserInstallation=" + OfficeUtils.toUrl(instanceProfileDir));
+            }
+            command.add("--headless");
+            command.add("--nocrashreport");
+            command.add("--nodefault");
+            command.add("--nofirststartwizard");
+            command.add("--nolockcheck");
+            command.add("--nologo");
+            command.add("--norestore");
+            logger.info("Using GNU based LibreOffice command"+(PlatformUtils.isMac() ? " on Mac" : "")+": "+command);
+            logger.info("Using GNU based LibreOffice "+
+                    (isLibreOffice3Dot6() ? "3.6" : "3.5")+" command"+
+                    (PlatformUtils.isMac() ? " on Mac" : "")+": "+command);
+        }
+        else
+        {
+            command.add("-accept=" + unoUrl.getAcceptString() + ";urp;");
+            command.add("-env:UserInstallation=" + OfficeUtils.toUrl(instanceProfileDir));
+            command.add("-headless");
+            command.add("-nocrashreport");
+            command.add("-nodefault");
+            command.add("-nofirststartwizard");
+            command.add("-nolockcheck");
+            command.add("-nologo");
+            command.add("-norestore");
+            logger.info("Using original OpenOffice command: "+command);
+        }
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         if (PlatformUtils.isWindows()) {
             addBasisAndUrePaths(processBuilder);
         }
+        if (PlatformUtils.isMac())
+        {
+            Map<String, String> env = processBuilder.environment();
+            env.remove("DYLD_LIBRARY_PATH");
+            logger.info("Removing $DYLD_LIBRARY_PATH from the environment so that LibreOffice/OpenOffice will start on Mac.");
+        }
         logger.info(String.format("starting process with acceptString '%s' and profileDir '%s'", unoUrl, instanceProfileDir));
+
         process = processBuilder.start();
         pid = processManager.findPid(processQuery);
+
+        // CUSTOM CODE STARTS HERE
+        long pid_ = pid;
+        int iteration = 0;
+
+        // if the process-id is PID_NOT_FOUND then looping through fix iteration.
+        // In each iteration the thread will sleep to make sure the process is loaded into the system, once the thread is awake it again checks the process id.
+
+        while (pid_ == PID_NOT_FOUND && iteration++ < this.maxIteration) {
+
+            try {
+                // sleep the current thread for some miliseconds, so the process is loaded by the system.
+                Thread.sleep(this.threadWait);
+            } catch (InterruptedException e) {
+                logger.info(Thread.currentThread().getName()+": Exception IN THREAD SLEEP :"+e.getMessage());
+                e.printStackTrace();
+            }
+
+            // retry and get the process-id.
+            pid_ = processManager.findPid(processQuery);
+
+
+            if(pid_ != PID_NOT_FOUND && pid_ != PID_UNKNOWN){
+                // if process id is found, it means the process is loaded into the system.
+                pid = pid_;
+                logger.info(Thread.currentThread().getName()+": HOTFIX APPLIED.");
+                break;
+            }
+        }
+
+        if( pid_ == PID_NOT_FOUND || pid_ == PID_UNKNOWN) {
+            logger.info(Thread.currentThread().getName()+": HOTFIX NOT APPLIED.");
+        }
+        // CUSTOM CODE ENDS HERE
+
+
         if (pid == PID_NOT_FOUND) {
             throw new IllegalStateException(String.format("process with acceptString '%s' started but its pid could not be found",
                     unoUrl.getAcceptString()));
@@ -132,6 +212,18 @@ class OfficeProcess {
                 }
             }
         }
+    }
+
+    private boolean isLibreOffice3Dot5()
+    {
+        return
+                !new File(officeHome, "basis-link").isFile() &&
+                        (new File(officeHome, "ure-link").isFile() || new File(officeHome, "ure-link").isDirectory());
+    }
+
+    private boolean isLibreOffice3Dot6()
+    {
+        return isLibreOffice3Dot5() && new File(officeHome, "NOTICE").isFile();
     }
 
     private void addBasisAndUrePaths(ProcessBuilder processBuilder) throws IOException {
