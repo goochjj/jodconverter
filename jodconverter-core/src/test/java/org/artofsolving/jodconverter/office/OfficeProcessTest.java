@@ -7,7 +7,10 @@ import static org.testng.Assert.fail;
 import java.util.regex.Pattern;
 
 import org.artofsolving.jodconverter.ReflectionUtils;
-import org.artofsolving.jodconverter.process.*;
+import org.artofsolving.jodconverter.process.MacProcessManager;
+import org.artofsolving.jodconverter.process.ProcessManager;
+import org.artofsolving.jodconverter.process.UnixProcessManager;
+import org.artofsolving.jodconverter.process.WindowsProcessManager;
 import org.artofsolving.jodconverter.util.PlatformUtils;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
@@ -19,21 +22,21 @@ public class OfficeProcessTest {
         if (!PlatformUtils.isLinux()) {
             throw new SkipException("LinuxProcessManager can only be tested on Linux");
         }
-        this.foundExistingProcessAndKill(new UnixProcessManager());
+        foundExistingProcessAndKill(new UnixProcessManager());
     }
 
     public void foundExistingProcessAndKill_MacOS() throws Exception {
         if (!PlatformUtils.isMac()) {
             throw new SkipException("MacProcessManager can only be tested on MacOS");
         }
-        this.foundExistingProcessAndKill(new MacProcessManager());
+        foundExistingProcessAndKill(new MacProcessManager());
     }
 
     public void foundExistingProcessAndKill_Windows() throws Exception {
         if (!PlatformUtils.isWindows()) {
             throw new SkipException("WindowsProcessManager can only be tested on Windows");
         }
-        this.foundExistingProcessAndKill(new WindowsProcessManager());
+        foundExistingProcessAndKill(new WindowsProcessManager());
     }
 
     private void foundExistingProcessAndKill(ProcessManager processManager) throws Exception {
@@ -71,21 +74,21 @@ public class OfficeProcessTest {
         if (!PlatformUtils.isLinux()) {
             throw new SkipException("LinuxProcessManager can only be tested on Linux");
         }
-        this.foundExistingProcessAndError(new UnixProcessManager());
+        foundExistingProcessAndError(new UnixProcessManager());
     }
 
     public void foundExistingProcessAndError_MacOS() throws Exception {
         if (!PlatformUtils.isMac()) {
             throw new SkipException("MacProcessManager can only be tested on MacOS");
         }
-        this.foundExistingProcessAndError(new MacProcessManager());
+        foundExistingProcessAndError(new MacProcessManager());
     }
 
     public void foundExistingProcessAndError_Windows() throws Exception {
         if (!PlatformUtils.isWindows()) {
             throw new SkipException("WindowsProcessManager can only be tested on Windows");
         }
-        this.foundExistingProcessAndError(new WindowsProcessManager());
+        foundExistingProcessAndError(new WindowsProcessManager());
     }
 
     private void foundExistingProcessAndError(ProcessManager processManager) throws Exception {
@@ -111,7 +114,8 @@ public class OfficeProcessTest {
             } finally {
                 try {
                     proc2.stopAndWait();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
 
         } finally {

@@ -19,11 +19,10 @@
 //
 package org.artofsolving.jodconverter;
 
-import static org.artofsolving.jodconverter.office.OfficeUtils.*;
+import static org.artofsolving.jodconverter.office.OfficeUtils.cast;
 
 import org.artofsolving.jodconverter.document.DocumentFamily;
 import org.artofsolving.jodconverter.office.OfficeException;
-
 
 import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XServiceInfo;

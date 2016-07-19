@@ -19,11 +19,9 @@
 //
 package org.artofsolving.jodconverter.office;
 
-import static org.artofsolving.jodconverter.office.OfficeUtils.*;
-
-import org.artofsolving.jodconverter.office.OfficeContext;
-import org.artofsolving.jodconverter.office.OfficeException;
-import org.artofsolving.jodconverter.office.OfficeTask;
+import static org.artofsolving.jodconverter.office.OfficeUtils.SERVICE_DESKTOP;
+import static org.artofsolving.jodconverter.office.OfficeUtils.cast;
+import static org.artofsolving.jodconverter.office.OfficeUtils.property;
 
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.frame.XComponentLoader;

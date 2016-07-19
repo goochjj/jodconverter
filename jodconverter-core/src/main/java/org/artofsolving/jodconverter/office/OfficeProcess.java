@@ -19,7 +19,11 @@
 //
 package org.artofsolving.jodconverter.office;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,19 +66,17 @@ class OfficeProcess {
 
     public static final int DEFAULT_STARTUP_WATCH_TIMEOUT = 7;
 
-    public OfficeProcess(File officeHome, UnoUrl unoUrl,
-            File templateProfileDir, ProcessManager processManager) {
+    public OfficeProcess(File officeHome, UnoUrl unoUrl, File templateProfileDir, ProcessManager processManager) {
         this(officeHome, unoUrl, templateProfileDir, processManager, false, true);
     }
 
-    public OfficeProcess(File officeHome, UnoUrl unoUrl,
-            File templateProfileDir, ProcessManager processManager,
+    public OfficeProcess(File officeHome, UnoUrl unoUrl, File templateProfileDir, ProcessManager processManager,
             boolean useGnuStyleLongOptions, boolean killExistingProcess) {
         this.officeHome = officeHome;
         this.unoUrl = unoUrl;
         this.templateProfileDir = templateProfileDir;
-        this.instanceProfileDir = getInstanceProfileDir(unoUrl);
-        this.fakeBundlesDir = getFakeBundlesDir();
+        instanceProfileDir = getInstanceProfileDir(unoUrl);
+        fakeBundlesDir = getFakeBundlesDir();
         this.processManager = processManager;
         if (useGnuStyleLongOptions) {
             COMMAND_ARG_PREFIX = "--";
@@ -101,8 +103,7 @@ class OfficeProcess {
         command.add("-nolockcheck");
         command.add("-nologo");
         command.add("-norestore");
-        command.add("-env:UserInstallation="
-                + OfficeUtils.toUrl(instanceProfileDir));
+        command.add("-env:UserInstallation=" + OfficeUtils.toUrl(instanceProfileDir));
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
         if (PlatformUtils.isWindows()) {
@@ -150,9 +151,9 @@ class OfficeProcess {
         doStart(false);
     }
 
-    protected void manageProcessOutputs(Process process) {
-        InputStream processOut = process.getInputStream();
-        InputStream processError = process.getErrorStream();
+    protected void manageProcessOutputs(Process aProcess) {
+        InputStream processOut = aProcess.getInputStream();
+        InputStream processError = aProcess.getErrorStream();
         Thread to = new Thread(new StreamGobbler(processOut));
         to.setDaemon(true);
         to.start();
@@ -174,11 +175,11 @@ class OfficeProcess {
     }
 
     protected void doStart(boolean retry) throws IOException {
-        String processRegex = "soffice.*"
-                + Pattern.quote(unoUrl.getAcceptString());
+        String processRegex = "soffice.*" + Pattern.quote(unoUrl.getAcceptString());
         String existingPid = processManager.findPid(processRegex);
         if (existingPid != null && killExistingProcess) {
-            logger.warning(String.format("a process with acceptString '%s' is already running; pid %s", unoUrl.getAcceptString(), existingPid));
+            logger.warning(String.format("a process with acceptString '%s' is already running; pid %s",
+                    unoUrl.getAcceptString(), existingPid));
             processManager.kill(null, existingPid);
             try {
                 Thread.sleep(1000);
@@ -189,10 +190,9 @@ class OfficeProcess {
 
         }
         if (existingPid != null) {
-            throw new IllegalStateException(
-                    String.format(
-                            "a process with acceptString '%s' is already running; pid %s",
-                            unoUrl.getAcceptString(), existingPid));
+            throw new IllegalStateException(String.format(
+                    "a process with acceptString '%s' is already running; pid %s", unoUrl.getAcceptString(),
+                    existingPid));
         }
 
         if (!retry) {
@@ -203,13 +203,10 @@ class OfficeProcess {
         List<String> command = new ArrayList<String>();
         File executable = OfficeUtils.getOfficeExecutable(officeHome);
         command.add(executable.getAbsolutePath());
-        command.add(COMMAND_ARG_PREFIX + "accept=" + unoUrl.getAcceptString()
-                + ";urp;");
-        command.add("-env:UserInstallation="
-                + OfficeUtils.toUrl(instanceProfileDir));
+        command.add(COMMAND_ARG_PREFIX + "accept=" + unoUrl.getAcceptString() + ";urp;");
+        command.add("-env:UserInstallation=" + OfficeUtils.toUrl(instanceProfileDir));
         if (!PlatformUtils.isWindows()) {
-            command.add("-env:BUNDLED_EXTENSIONS="
-                    + OfficeUtils.toUrl(fakeBundlesDir));
+            command.add("-env:BUNDLED_EXTENSIONS=" + OfficeUtils.toUrl(fakeBundlesDir));
         }
         command.add(COMMAND_ARG_PREFIX + "headless");
         command.add(COMMAND_ARG_PREFIX + "nocrashreport");
@@ -224,9 +221,8 @@ class OfficeProcess {
         if (PlatformUtils.isWindows()) {
             addBasisAndUrePaths(processBuilder);
         }
-        logger.info(String.format(
-                "starting process with acceptString '%s' and profileDir '%s'",
-                unoUrl, instanceProfileDir));
+        logger.info(String.format("starting process with acceptString '%s' and profileDir '%s'", unoUrl,
+                instanceProfileDir));
         process = processBuilder.start();
 
         int exitValue = 0;
@@ -266,8 +262,7 @@ class OfficeProcess {
         if (processManager.canFindPid()) {
             pid = processManager.findPid(processRegex);
             if (pid == null) {
-                throw new IllegalStateException(
-                        "started process, but can not find the pid, process is probably dead");
+                throw new IllegalStateException("started process, but can not find the pid, process is probably dead");
             } else {
                 logger.info("started process : pid = " + pid);
             }
@@ -276,26 +271,22 @@ class OfficeProcess {
         }
     }
 
-    private File getInstanceProfileDir(UnoUrl unoUrl) {
-        String dirName = ".jodconverter_"
-                + unoUrl.getAcceptString().replace(',', '_').replace('=', '-');
+    private File getInstanceProfileDir(@SuppressWarnings("hiding") UnoUrl unoUrl) {
+        String dirName = ".jodconverter_" + unoUrl.getAcceptString().replace(',', '_').replace('=', '-');
         dirName = dirName + "_" + Thread.currentThread().getId();
         return new File(System.getProperty("java.io.tmpdir"), dirName);
     }
 
     private void prepareInstanceProfileDir() throws OfficeException {
         if (instanceProfileDir.exists()) {
-            logger.warning(String.format(
-                    "profile dir '%s' already exists; deleting",
-                    instanceProfileDir));
+            logger.warning(String.format("profile dir '%s' already exists; deleting", instanceProfileDir));
             deleteProfileDir();
         }
         if (templateProfileDir != null) {
             try {
                 FileUtils.copyDirectory(templateProfileDir, instanceProfileDir);
             } catch (IOException ioException) {
-                throw new OfficeException("failed to create profileDir",
-                        ioException);
+                throw new OfficeException("failed to create profileDir", ioException);
             }
         }
     }
@@ -338,8 +329,7 @@ class OfficeProcess {
         }
     }
 
-    private void addBasisAndUrePaths(ProcessBuilder processBuilder)
-            throws IOException {
+    private void addBasisAndUrePaths(ProcessBuilder processBuilder) throws IOException {
         File ureBin = null;
         File basisProgram = null;
         // see
@@ -352,8 +342,7 @@ class OfficeProcess {
                 logger.fine("no %OFFICE_HOME%/basis-link found; assuming it's OOo 2.x and we don't need to append URE and Basic paths");
                 return;
             }
-            ureBin = new File(new File(officeHome, FileUtils.readFileToString(
-                    ureLink).trim()), "bin");
+            ureBin = new File(new File(officeHome, FileUtils.readFileToString(ureLink).trim()), "bin");
         } else {
             String basisLinkText = FileUtils.readFileToString(basisLink).trim();
             File basisHome = new File(officeHome, basisLinkText);
@@ -397,6 +386,7 @@ class OfficeProcess {
 
         private int exitCode;
 
+        @Override
         protected void attempt() throws TemporaryException, Exception {
             try {
                 exitCode = process.exitValue();
@@ -411,8 +401,7 @@ class OfficeProcess {
 
     }
 
-    public int getExitCode(long retryInterval, long retryTimeout)
-            throws RetryTimeoutException {
+    public int getExitCode(long retryInterval, long retryTimeout) throws RetryTimeoutException {
         try {
             ExitCodeRetryable retryable = new ExitCodeRetryable();
             retryable.execute(retryInterval, retryTimeout);
@@ -420,15 +409,13 @@ class OfficeProcess {
         } catch (RetryTimeoutException retryTimeoutException) {
             throw retryTimeoutException;
         } catch (Exception exception) {
-            throw new OfficeException("could not get process exit code",
-                    exception);
+            throw new OfficeException("could not get process exit code", exception);
         }
     }
 
-    public int forciblyTerminate(long retryInterval, long retryTimeout)
-            throws IOException, RetryTimeoutException {
-        logger.info(String.format("trying to forcibly terminate process: '"
-                + unoUrl + "'" + (pid != null ? " (pid " + pid + ")" : "")));
+    public int forciblyTerminate(long retryInterval, long retryTimeout) throws IOException, RetryTimeoutException {
+        logger.info(String.format("trying to forcibly terminate process: '" + unoUrl + "'"
+                + (pid != null ? " (pid " + pid + ")" : "")));
         processManager.kill(process, pid);
         return getExitCode(retryInterval, retryTimeout);
     }
@@ -448,19 +435,16 @@ class OfficeProcess {
         if (templateProfileDir == null) {
             sb.append("\ntemplateProfileDir : null");
         } else {
-            sb.append("\ntemplateProfileDir : "
-                    + templateProfileDir.getAbsolutePath());
+            sb.append("\ntemplateProfileDir : " + templateProfileDir.getAbsolutePath());
         }
         if (instanceProfileDir == null) {
             sb.append("\ninstanceProfileDir : null");
 
         } else {
-            sb.append("\ninstanceProfileDir : "
-                    + instanceProfileDir.getAbsolutePath());
+            sb.append("\ninstanceProfileDir : " + instanceProfileDir.getAbsolutePath());
 
         }
-        sb.append("\nProcessManager : "
-                + processManager.getClass().getSimpleName());
+        sb.append("\nProcessManager : " + processManager.getClass().getSimpleName());
         if (versionDescriptor != null) {
             sb.append("\nversionDescriptor : " + versionDescriptor.toString());
         }
@@ -478,6 +462,7 @@ class StreamGobbler implements Runnable {
         this.is = is;
     }
 
+    @Override
     public void run() {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         String line;

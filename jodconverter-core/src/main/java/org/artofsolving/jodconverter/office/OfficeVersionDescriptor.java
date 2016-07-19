@@ -18,8 +18,7 @@ public class OfficeVersionDescriptor {
     }
 
     public OfficeVersionDescriptor(String checkString) {
-        logger.fine("Building " + this.getClass().getSimpleName() + ": "
-                + checkString.trim());
+        logger.fine("Building " + this.getClass().getSimpleName() + ": " + checkString.trim());
         String productLine = null;
         String[] lines = checkString.split("\\n");
         for (String line : lines) {
@@ -27,8 +26,7 @@ public class OfficeVersionDescriptor {
                 useGnuStyleLongOptions = true;
             }
             String lowerLine = line.trim().toLowerCase();
-            if (lowerLine.startsWith("openoffice")
-                    || lowerLine.startsWith("libreoffice")) {
+            if (lowerLine.startsWith("openoffice") || lowerLine.startsWith("libreoffice")) {
                 productLine = line.trim();
             }
         }
@@ -51,8 +49,7 @@ public class OfficeVersionDescriptor {
         logger.info("soffice info: " + toString());
     }
 
-    public static OfficeVersionDescriptor parseFromExecutableLocation(
-            String path) {
+    public static OfficeVersionDescriptor parseFromExecutableLocation(String path) {
 
         OfficeVersionDescriptor desc = new OfficeVersionDescriptor();
 
@@ -65,8 +62,7 @@ public class OfficeVersionDescriptor {
             desc.useGnuStyleLongOptions = true;
         }
 
-        String[] versionsToCheck = { "3.9", "3.8", "3.7", "3.6", "3.5", "3.4",
-                "3.3", "3.2", "3.1", "3" };
+        String[] versionsToCheck = { "3.9", "3.8", "3.7", "3.6", "3.5", "3.4", "3.3", "3.2", "3.1", "3" };
 
         for (String v : versionsToCheck) {
             if (path.contains(v)) {
@@ -100,8 +96,7 @@ public class OfficeVersionDescriptor {
 
     @Override
     public String toString() {
-        return String.format(
-                "Product: %s - Version: %s - useGnuStyleLongOptions: %s",
-                getProductName(), getVersion(), useGnuStyleLongOptions());
+        return String.format("Product: %s - Version: %s - useGnuStyleLongOptions: %s", getProductName(), getVersion(),
+                useGnuStyleLongOptions());
     }
 }
